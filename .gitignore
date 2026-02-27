@@ -1,0 +1,124 @@
+# ============================================
+# .gitignore - UPI Dispute Resolution Project
+# ============================================
+
+# ============ ENVIRONMENT & SECRETS ============
+.env
+.env.local
+.env.*.local
+.env.dev
+.env.prod
+.secrets/
+secrets.json
+
+# ============ IDE ============
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+.classpath
+.project
+.settings/
+*.sublime-workspace
+
+# ============ BUILD ARTIFACTS ============
+target/
+build/
+dist/
+out/
+classes/
+
+# ============ DEPENDENCIES ============
+node_modules/
+__pycache__/
+.venv/
+venv/
+env/
+.m2/
+*.jar
+*.class
+
+# ============ LOGS ============
+logs/
+*.log
+*.log.*
+
+# ============ TESTS ============
+coverage/
+.coverage
+.pytest_cache/
+*.coverage
+junit-report/
+
+# ============ NODE & NPM ============
+.npm
+.npmrc
+npm-debug.log
+yarn-lock.json
+package-lock.json
+
+# ============ PYTHON ============
+.pytest_cache/
+.mypy_cache/
+.hypothesis/
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+
+# ============ DATABASE ============
+disputes.db
+*.db
+*.sqlite
+
+# ============ DOCKER ============
+.dockerignore
+
+# ============ TEMPORARY FILES ============
+temp/
+tmp/
+.cache/
+.gradle/
+
+# ============ OS SPECIFIC ============
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ============ CI/CD ============
+.github/workflows/secrets/
+
+# ============ COMPILED & GENERATED ============
+**/generated/
+**/generated-sources/
+
+# ============ FRONTEND SPECIFIC ============
+frontend/.vite
+frontend/dist
+frontend/node_modules
+
+# ============ BACKEND SPECIFIC ============
+backend/target
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.properties
+
+# ============ ML SPECIFIC ============
+ml/models/__pycache__/
+ml/data/raw/
+ml/data/processed/
+ml/*.pkl
+ml/*.joblib
+ml/notebooks/.ipynb_checkpoints/
+
+# ============ DO NOT IGNORE ============
+!.gitkeep
+!.env.example
+!.env.dev.example
+!.env.prod.example

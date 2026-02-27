@@ -1,0 +1,212 @@
+version: '3.8'
+
+# ============================================
+# UPI DISPUTE RESOLUTION - Docker Compose (MVP)
+# ============================================
+# Start MVP stack: docker-compose up -d
+# Stop: docker-compose down
+# View logs: docker-compose logs -f [service-name]
+#
+# MVP includes: Backend + Frontend only
+# ML Service (Phase 2): Commented out below
+# To enable ML: Uncomment ml-service section
+
+services:
+  # ============ BACKEND SERVICE ============
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: disputes-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Load from .env.dev (development)
+      # Or use docker compose --env-file .env.prod (production)
+      SPRING_PROFILES_ACTIVE: ${ENVIRONMENT:-dev}
+      SPRING_DATASOURCE_URL: ${DATABASE_URL:-jdbc:sqlite:disputes.db}
+      SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME:-sa}
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD:-}
+      SERVER_PORT: 8000
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      BANK_API_KEY: ${BANK_API_KEY:-dev-key}
+      NEFT_API_KEY: ${NEFT_API_KEY:-dev-key}
+    volumes:
+      - ./backend:/app
+      - backend-cache:/root/.m2  # Maven cache
+      - ./disputes.db:/app/disputes.db  # Persistent SQLite DB (dev)
+    depends_on:
+      - frontend
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============ FRONTEND SERVICE ============
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: disputes-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: ${FRONTEND_VITE_API_URL:-http://backend:8000}
+      VITE_APP_NAME: ${APP_NAME:-UPI Dispute Resolution}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules  # Don't mount node_modules
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============ ML SERVICE (Phase 2 - DISABLED FOR MVP) ============
+  # Uncomment this section when ready for Phase 2 (Risk Scoring)
+  # ml-service:
+  #   build:
+  #     context: ./ml
+  #     dockerfile: Dockerfile
+  #   container_name: disputes-ml
+  #   ports:
+  #     - "5000:5000"
+  #   environment:
+  #     FLASK_ENV: ${ENVIRONMENT:-dev}
+  #     FLASK_APP: ml/app.py
+  #     PYTHONUNBUFFERED: 1
+  #   volumes:
+  #     - ./ml:/app
+  #     - ml-cache:/app/models  # Persist trained models
+  #   networks:
+  #     - app-network
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+  #     interval: 15s
+  #     timeout: 5s
+  #     retries: 3
+  #     start_period: 30s
+  #   logging:
+  #     driver: "json-file"
+  #     options:
+  #       max-size: "10m"
+  #       max-file: "3"
+
+  # ============ POSTGRESQL (Production Only) ============
+  # Uncomment this section for production with PostgreSQL
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: disputes-db
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_DB: disputes_prod
+  #     POSTGRES_USER: ${DATABASE_USERNAME}
+  #     POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #     - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+  #   networks:
+  #     - app-network
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME}"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # ============ REDIS CACHE (Optional) ============
+  # Uncomment this section to enable caching
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: disputes-cache
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   networks:
+  #     - app-network
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  # ============ ADMINER (Database UI - Dev Only) ============
+  adminer:
+    image: adminer
+    container_name: disputes-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    # Only in development
+    profiles:
+      - dev
+
+# ============ NETWORKS ============
+networks:
+  app-network:
+    driver: bridge
+
+# ============ VOLUMES ============
+volumes:
+  backend-cache:
+    driver: local
+  # ml-cache:  # Re-enable when Phase 2 ML is added
+  #   driver: local
+  # postgres-data:
+  #   driver: local
+  # redis-data:
+  #   driver: local
+
+# ============ CONFIGURATION ============
+# USAGE:
+#
+# 1. Development (SQLite, all services):
+#    docker-compose up -d
+#    
+# 2. Production (PostgreSQL):
+#    docker-compose --env-file .env.prod up -d
+#
+# 3. View logs (MVP):
+#    docker-compose logs -f backend
+#    docker-compose logs -f frontend
+#
+# 4. Stop services:
+#    docker-compose down
+#
+# 5. Remove volumes (WARNING: Data loss):
+#    docker-compose down -v
+#
+# 6. Rebuild images:
+#    docker-compose build --no-cache
+#
+# 7. Execute command in container:
+#    docker-compose exec backend sh
+#    docker-compose exec frontend sh
+#
+# PHASE 2 (LATER - when enabling ML):
+# 8. Uncomment ml-service in this file
+# 9. Run: docker-compose up -d ml-service
+# 10. View ML logs: docker-compose logs -f ml-service
