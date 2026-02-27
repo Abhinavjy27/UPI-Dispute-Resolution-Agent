@@ -23,17 +23,23 @@ public class DisputeController {
     }
 
     @PostMapping("/disputes")
-    public ResponseEntity<DisputeResponse> fileDispute(@Valid @RequestBody DisputeRequest request) {
+    public ResponseEntity<?> fileDispute(@Valid @RequestBody DisputeRequest request) {
         try {
             logger.info("POST /api/disputes - Filing new dispute");
             DisputeResponse response = disputeService.fileDispute(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
             logger.severe("Validation error: " + e.getMessage());
-            throw e;
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (Exception e) {
             logger.severe("Error filing dispute: " + e.getMessage());
-            throw new RuntimeException("Failed to file dispute: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Failed to file dispute");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
