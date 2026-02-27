@@ -49,6 +49,20 @@ public class DisputeController {
         }
     }
 
+    @GetMapping("/disputes/user/{phone}")
+    public ResponseEntity<?> getUserDisputes(@PathVariable String phone) {
+        try {
+            logger.info("GET /api/disputes/user/" + phone + " - Fetching user disputes");
+            var disputes = disputeService.getUserDisputes(phone);
+            return ResponseEntity.ok(disputes);
+        } catch (Exception e) {
+            logger.severe("Error fetching user disputes: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
         Map<String, String> response = new HashMap<>();

@@ -4,9 +4,11 @@ import com.upi.dto.DisputeRequest;
 import com.upi.dto.DisputeResponse;
 import com.upi.model.Dispute;
 import com.upi.repository.DisputeRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -61,6 +63,14 @@ public class DisputeService {
         Dispute dispute = disputeRepository.findById(disputeId)
             .orElseThrow(() -> new IllegalArgumentException("Dispute not found"));
         return mapToResponse(dispute);
+    }
+
+    public List<DisputeResponse> getUserDisputes(String phone) {
+        logger.info("Fetching disputes for phone: " + phone);
+        List<Dispute> disputes = disputeRepository.findByPhone(phone);
+        return disputes.stream()
+            .map(this::mapToResponse)
+            .collect(Collectors.toList());
     }
 
     private String callBankVerificationAPI(String transactionId) {
