@@ -3,6 +3,7 @@ package com.upi.controller;
 import com.upi.dto.LoginRequest;
 import com.upi.dto.LoginResponse;
 import com.upi.dto.RegisterRequest;
+import com.upi.dto.UpdateProfileRequest;
 import com.upi.dto.UserResponse;
 import com.upi.service.AuthService;
 import jakarta.validation.Valid;
@@ -59,10 +60,17 @@ public class AuthController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(Authentication authentication, @Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<?> updateProfile(Authentication authentication, @RequestBody UpdateProfileRequest request) {
         try {
             String username = authentication.getName();
-            UserResponse user = authService.updateUserProfile(username, request);
+            
+            // Create RegisterRequest for backward compatibility
+            RegisterRequest regRequest = new RegisterRequest();
+            regRequest.setFullName(request.getFullName());
+            regRequest.setPhone(request.getPhone());
+            regRequest.setAddress(request.getAddress());
+            
+            UserResponse user = authService.updateUserProfile(username, regRequest);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
