@@ -2,11 +2,30 @@
 
 ## 🔌 REST API Endpoints
 
+### **Endpoints Overview**
+
+1. **POST /api/disputes** - File a new dispute
+2. **GET /api/disputes/{dispute_id}** - Get dispute status by ID
+3. **GET /api/disputes/user/{phone}** - Get all disputes for a user (NEW)
+4. **POST /api/risk-score** - Calculate risk score (Optional)
+
+---
+
 ### **Endpoint 1: File Dispute**
 
 **Route:** `POST /api/disputes`
 
 **Request Body:**
+```json
+{
+    "transactionId": "TXN20260227123456",
+    "merchantUpi": "amazon@upi",
+    "amount": 5000,
+    "customerPhone": "+919876543210"
+}
+```
+
+**Alternative (snake_case also accepted):**
 ```json
 {
     "transaction_id": "TXN20260227123456",
@@ -18,14 +37,14 @@
 
 **Request Validation:**
 ```
-transaction_id:
+transactionId / transaction_id:
   ├─ Type: String
   ├─ Required: Yes
   ├─ Format: TXN followed by 14+ digits
   ├─ Example: TXN20260227123456
   └─ Error if: Not TXN format
 
-merchant_upi:
+merchantUpi / merchant_upi:
   ├─ Type: String
   ├─ Required: Yes
   ├─ Format: username@bank
@@ -34,13 +53,13 @@ merchant_upi:
   └─ Error if: Invalid UPI format
 
 amount:
-  ├─ Type: Integer (in ₹)
+  ├─ Type: Number (in ₹)
   ├─ Required: Yes
   ├─ Range: 1 - 100,000
   ├─ Example: 5000 (not "₹5000")
   └─ Error if: < 1 or > 100,000
 
-customer_phone:
+customerPhone / customer_phone:
   ├─ Type: String
   ├─ Required: Yes
   ├─ Format: +91 followed by 10 digits
@@ -52,14 +71,14 @@ customer_phone:
 ```json
 {
     "success": true,
-    "dispute_id": "DIS_1709028600",
+    "disputeId": "DIS_1709028600",
     "status": "REFUND_INITIATED",
     "amount": 5000,
-    "neft_reference": "NEFT20260227123456",
-    "expected_settlement": "2026-02-28T09:00:00Z",
+    "neftReference": "NEFT20260227123456",
+    "expectedSettlement": "2026-02-28T09:00:00Z",
     "message": "Refund initiated. Money by tomorrow 9 AM",
-    "created_at": "2026-02-27T14:30:00Z",
-    "verification_completed_at": "2026-02-27T14:32:00Z"
+    "createdAt": "2026-02-27T14:30:00Z",
+    "verificationCompletedAt": "2026-02-27T14:32:00Z"
 }
 ```
 
@@ -167,7 +186,89 @@ dispute_id: String (DIS_1709028600)
 
 ---
 
-### **Endpoint 3: Risk Score (Optional)**
+### **Endpoint 3: Get User's Disputes**
+
+**Route:** `GET /api/disputes/user/{phone}`
+
+**Path Parameters:**
+```
+phone: String (URL encoded, e.g., %2B919876543210 for +919876543210)
+```
+
+**Example Request:**
+```
+GET /api/disputes/user/%2B919876543210
+```
+
+**Success Response (200 OK):**
+```json
+{
+    "success": true,
+    "phone": "+919876543210",
+    "disputes": [
+        {
+            "disputeId": "DIS_1709028600",
+            "transactionId": "TXN20260227123456",
+            "merchantUpi": "amazon@upi",
+            "amount": 5000,
+            "status": "REFUND_INITIATED",
+            "createdAt": "2026-02-27T14:30:00Z",
+            "expectedSettlement": "2026-02-28T09:00:00Z",
+            "neftReference": "NEFT20260227123456"
+        },
+        {
+            "disputeId": "DIS_1709025400",
+            "transactionId": "TXN20260225098765",
+            "merchantUpi": "flipkart@upi",
+            "amount": 2500,
+            "status": "APPROVED",
+            "createdAt": "2026-02-25T10:30:00Z",
+            "settledAt": "2026-02-26T08:45:00Z",
+            "neftReference": "NEFT20260225098765"
+        },
+        {
+            "disputeId": "DIS_1709010200",
+            "transactionId": "TXN20260220054321",
+            "merchantUpi": "swiggy@upi",
+            "amount": 850,
+            "status": "REJECTED",
+            "createdAt": "2026-02-20T18:15:00Z",
+            "rejectedAt": "2026-02-20T18:17:00Z",
+            "rejectionReason": "Money was already received by merchant"
+        }
+    ],
+    "totalDisputes": 3,
+    "pendingDisputes": 1,
+    "approvedDisputes": 1,
+    "rejectedDisputes": 1
+}
+```
+
+**Response for User with No Disputes (200 OK):**
+```json
+{
+    "success": true,
+    "phone": "+919876543210",
+    "disputes": [],
+    "totalDisputes": 0,
+    "pendingDisputes": 0,
+    "approvedDisputes": 0,
+    "rejectedDisputes": 0
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+    "success": false,
+    "error": "INVALID_PHONE",
+    "message": "Phone number must be in format +91XXXXXXXXXX"
+}
+```
+
+---
+
+### **Endpoint 4: Risk Score (Optional)**
 
 **Route:** `POST /api/risk-score`
 
@@ -267,6 +368,7 @@ CREATE TABLE disputes (
     
     INDEX idx_status (status),
     INDEX idx_transaction_id (transaction_id),
+    INDEX idx_customer_phone (customer_phone),           -- NEW: For fetching user's disputes
     INDEX idx_created_at (created_at)
 );
 ```
@@ -322,18 +424,18 @@ CREATE TABLE merchants (
 curl -X POST http://localhost:8000/api/disputes \
   -H "Content-Type: application/json" \
   -d '{
-    "transaction_id": "TXN20260227123456",
-    "merchant_upi": "amazon@upi",
+    "transactionId": "TXN20260227123456",
+    "merchantUpi": "amazon@upi",
     "amount": 5000,
-    "customer_phone": "+919876543210"
+    "customerPhone": "+919876543210"
   }'
 
 # Expected response:
 {
     "success": true,
-    "dispute_id": "DIS_1709028600",
+    "disputeId": "DIS_1709028600",
     "status": "REFUND_INITIATED",
-    "neft_reference": "NEFT20260227123456",
+    "neftReference": "NEFT20260227123456",
     ...
 }
 ```
@@ -496,6 +598,214 @@ Frontend                Backend                Databases       External APIs
 
 ---
 
-## 🚀 Next Step
+## 🏦 Mock Bank API Setup
+
+### **Do You Need TWO Separate Mock Bank APIs?**
+
+**NO - One unified mock is enough!** Here's why:
+
+### **Option 1: Single Mock API (RECOMMENDED for MVP)** ✅
+
+Create **ONE mock endpoint** that handles both customer and merchant verification:
+
+```javascript
+// Single mock endpoint
+POST /mock-bank/verify
+{
+  "type": "CUSTOMER" | "MERCHANT",
+  "transactionId": "TXN20260227123456",
+  "accountNumber": "9123456789",  // for CUSTOMER
+  "merchantUpi": "amazon@upi",     // for MERCHANT
+  "amount": 5000
+}
+
+// Returns:
+{
+  "verified": true,
+  "debited": true,    // for CUSTOMER
+  "credited": false,  // for MERCHANT
+  "amount": 5000
+}
+```
+
+**Why this is better:**
+- ✅ Simpler to build (one endpoint vs two)
+- ✅ Easier to test (one mock server)
+- ✅ Less code to maintain
+- ✅ Backend just changes `type` parameter
+
+### **Option 2: Two Separate Mock APIs** (Overkill for MVP)
+
+If you want to simulate real bank architecture:
+
+```javascript
+// Customer Bank API
+POST /customer-bank-api/verify
+{
+  "transactionId": "TXN20260227123456",
+  "accountNumber": "9123456789",
+  "amount": 5000
+}
+
+// Merchant Bank API  
+POST /merchant-bank-api/verify
+{
+  "transactionId": "TXN20260227123456",
+  "merchantUpi": "amazon@upi",
+  "amount": 5000
+}
+```
+
+**Why this is harder:**
+- ❌ Two servers to run (ports 9001, 9002)
+- ❌ Double the code
+- ❌ More complex setup for demo
+
+### **Quick Implementation (Single Mock)**
+
+Create `backend/mock-bank.js`:
+```javascript
+// Express mock endpoint
+app.post('/mock-bank/verify', (req, res) => {
+  const { type, transactionId, amount } = req.body;
+  
+  // For demo: Always return "money debited but not credited"
+  if (type === 'CUSTOMER') {
+    return res.json({
+      verified: true,
+      debited: true,
+      amount: amount,
+      timestamp: new Date().toISOString()
+    });
+  } else {
+    return res.json({
+      verified: true,
+      credited: false,  // Money never reached merchant
+      amount: 0,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+```
+
+Now your backend just calls:
+```javascript
+// In your dispute handler
+const customerCheck = await mockBank.verify({ 
+  type: 'CUSTOMER', 
+  transactionId, 
+  amount 
+});
+
+const merchantCheck = await mockBank.verify({ 
+  type: 'MERCHANT', 
+  transactionId, 
+  amount 
+});
+
+// Decision logic
+if (customerCheck.debited && !merchantCheck.credited) {
+  // Auto-approve refund!
+}
+```
+
+### **TL;DR for Your Friend**
+
+Tell your backend friend:
+1. **Use ONE mock API** with a `type` parameter
+2. **Port 9000** is enough (no need for 9001, 9002)
+3. **Hardcode responses** for demo (always return "failure scenario")
+4. Takes **10 minutes** to build vs 30 minutes for two separate mocks
+
+---
+
+## � User Profile & Dashboard Implementation
+
+### **Backend Requirements**
+
+The frontend now supports user profiles and dashboards. Users can:
+- Login with phone number (no OTP for MVP)
+- View all their disputes in one place
+- Track status of multiple disputes
+
+### **Implementing GET /api/disputes/user/{phone}**
+
+**Python/Flask Example:**
+```python
+@app.get("/api/disputes/user/<phone>")
+def get_user_disputes(phone):
+    # Query database for all disputes by this phone
+    disputes = db.query(
+        "SELECT * FROM disputes WHERE customer_phone = ? ORDER BY created_at DESC",
+        [phone]
+    )
+    
+    # Count by status
+    pending = len([d for d in disputes if d['status'] in ['PENDING', 'MANUAL_REVIEW']])
+    approved = len([d for d in disputes if d['status'] in ['APPROVED', 'REFUND_INITIATED']])
+    rejected = len([d for d in disputes if d['status'] == 'REJECTED'])
+    
+    return {
+        "success": True,
+        "phone": phone,
+        "disputes": [format_dispute(d) for d in disputes],
+        "totalDisputes": len(disputes),
+        "pendingDisputes": pending,
+        "approvedDisputes": approved,
+        "rejectedDisputes": rejected
+    }
+```
+
+**Node.js/Express Example:**
+```javascript
+app.get('/api/disputes/user/:phone', async (req, res) => {
+  const { phone } = req.params;
+  
+  // Query database
+  const disputes = await db.query(
+    'SELECT * FROM disputes WHERE customer_phone = $1 ORDER BY created_at DESC',
+    [phone]
+  );
+  
+  // Count by status
+  const pending = disputes.filter(d => ['PENDING', 'MANUAL_REVIEW'].includes(d.status)).length;
+  const approved = disputes.filter(d => ['APPROVED', 'REFUND_INITIATED'].includes(d.status)).length;
+  const rejected = disputes.filter(d => d.status === 'REJECTED').length;
+  
+  res.json({
+    success: true,
+    phone: phone,
+    disputes: disputes.map(formatDispute),
+    totalDisputes: disputes.length,
+    pendingDisputes: pending,
+    approvedDisputes: approved,
+    rejectedDisputes: rejected
+  });
+});
+```
+
+### **Security Notes**
+
+⚠️ **For MVP/Demo:** Phone number in URL is acceptable  
+✅ **For Production:** Add proper authentication:
+- JWT tokens
+- OTP verification
+- Session management
+- Rate limiting
+
+### **Frontend Integration**
+
+Already implemented:
+- ✅ Phone-based login (localStorage)
+- ✅ User dashboard component
+- ✅ Profile button in top right of landing page
+- ✅ Auto-fill phone in dispute form
+- ✅ View all user disputes
+
+No additional frontend work needed! Just implement the backend endpoint.
+
+---
+
+## �🚀 Next Step
 
 👉 Read **[05_TECH_STACK_AND_SETUP.md](05_TECH_STACK_AND_SETUP.md)** to set up locally
