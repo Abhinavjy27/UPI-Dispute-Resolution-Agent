@@ -1,0 +1,177 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Mock Bank API Tests",
+  "dateExport": "2026-02-27",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "mock-bank-1",
+      "colId": "mock-bank-api",
+      "name": "1. Get Sample Transaction",
+      "url": "http://localhost:8080/bank/transaction/TXN20240101001",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-02-27T00:00:00.000Z",
+      "modified": "2026-02-27T00:00:00.000Z",
+      "headers": [
+        {
+          "key": "x-api-key",
+          "value": "upi-dispute-resolver-secret-key-2024",
+          "uuid": "mock-bank-h1"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "uuid": "mock-bank-h2"
+        }
+      ],
+      "params": [],
+      "body": "",
+      "tests": []
+    },
+    {
+      "_id": "mock-bank-2",
+      "colId": "mock-bank-api",
+      "name": "2. Create New Transaction",
+      "url": "http://localhost:8080/bank/transaction",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2026-02-27T00:00:00.000Z",
+      "modified": "2026-02-27T00:00:00.000Z",
+      "headers": [
+        {
+          "key": "x-api-key",
+          "value": "upi-dispute-resolver-secret-key-2024",
+          "uuid": "mock-bank-h3"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "uuid": "mock-bank-h4"
+        }
+      ],
+      "params": [],
+      "body": {
+        "raw": "{\n  \"amount\": 5000,\n  \"status\": \"FAILED\",\n  \"payerId\": \"user@upi\",\n  \"payeeId\": \"merchant@upi\",\n  \"description\": \"Payment for goods\"\n}",
+        "type": "json"
+      },
+      "tests": []
+    },
+    {
+      "_id": "mock-bank-3",
+      "colId": "mock-bank-api",
+      "name": "3. Get All Refunds",
+      "url": "http://localhost:8080/bank/refunds",
+      "method": "GET",
+      "sortNum": 30000,
+      "created": "2026-02-27T00:00:00.000Z",
+      "modified": "2026-02-27T00:00:00.000Z",
+      "headers": [
+        {
+          "key": "x-api-key",
+          "value": "upi-dispute-resolver-secret-key-2024",
+          "uuid": "mock-bank-h5"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "uuid": "mock-bank-h6"
+        }
+      ],
+      "params": [],
+      "body": "",
+      "tests": []
+    },
+    {
+      "_id": "mock-bank-4",
+      "colId": "mock-bank-api",
+      "name": "4. Process Refund (SUCCESS transaction)",
+      "url": "http://localhost:8080/bank/refund",
+      "method": "POST",
+      "sortNum": 40000,
+      "created": "2026-02-27T00:00:00.000Z",
+      "modified": "2026-02-27T00:00:00.000Z",
+      "headers": [
+        {
+          "key": "x-api-key",
+          "value": "upi-dispute-resolver-secret-key-2024",
+          "uuid": "mock-bank-h7"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "uuid": "mock-bank-h8"
+        }
+      ],
+      "params": [],
+      "body": {
+        "raw": "{\n  \"transactionId\": \"TXN20240101001\",\n  \"reason\": \"Customer initiated dispute - auto refund\"\n}",
+        "type": "json"
+      },
+      "tests": []
+    },
+    {
+      "_id": "mock-bank-5",
+      "colId": "mock-bank-api",
+      "name": "5. Try Refund FAILED Transaction (Should Error)",
+      "url": "http://localhost:8080/bank/refund",
+      "method": "POST",
+      "sortNum": 50000,
+      "created": "2026-02-27T00:00:00.000Z",
+      "modified": "2026-02-27T00:00:00.000Z",
+      "headers": [
+        {
+          "key": "x-api-key",
+          "value": "upi-dispute-resolver-secret-key-2024",
+          "uuid": "mock-bank-h9"
+        },
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "uuid": "mock-bank-h10"
+        }
+      ],
+      "params": [],
+      "body": {
+        "raw": "{\n  \"transactionId\": \"TXN20240101002\",\n  \"reason\": \"Testing error handling\"\n}",
+        "type": "json"
+      },
+      "tests": []
+    },
+    {
+      "_id": "mock-bank-6",
+      "colId": "mock-bank-api",
+      "name": "6. Test Without API Key (Should Fail 401)",
+      "url": "http://localhost:8080/bank/transaction/TXN20240101001",
+      "method": "GET",
+      "sortNum": 60000,
+      "created": "2026-02-27T00:00:00.000Z",
+      "modified": "2026-02-27T00:00:00.000Z",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json",
+          "uuid": "mock-bank-h11"
+        }
+      ],
+      "params": [],
+      "body": "",
+      "tests": []
+    },
+    {
+      "_id": "mock-bank-7",
+      "colId": "mock-bank-api",
+      "name": "7. Swagger UI Documentation",
+      "url": "http://localhost:8080/swagger-ui.html",
+      "method": "GET",
+      "sortNum": 70000,
+      "created": "2026-02-27T00:00:00.000Z",
+      "modified": "2026-02-27T00:00:00.000Z",
+      "headers": [],
+      "params": [],
+      "body": "",
+      "tests": []
+    }
+  ]
+}
