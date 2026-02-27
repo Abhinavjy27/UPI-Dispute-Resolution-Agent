@@ -362,15 +362,15 @@ function App() {
             
             <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto relative">
               {/* Connecting Lines (hidden on mobile) */}
-              <div className="hidden md:block absolute top-24 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-orange-500/50" />
+              <div className="hidden md:block absolute top-24 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20" />
               
               {/* Step 1 */}
               <div className="group relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-500" />
-                <div className="relative p-8 border border-purple-500/20 rounded-2xl bg-card hover:bg-card/50 transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/20">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl opacity-0 group-hover:opacity-50 blur-sm transition duration-500" />
+                <div className="relative p-8 border border-purple-500/10 rounded-2xl bg-card/30 hover:bg-card/40 transition-all duration-300 hover:shadow-md hover:shadow-purple-500/5">
                   {/* Icon */}
                   <div className="relative mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-20 blur-xl" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-10 blur-md" />
                     <div className="relative w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
                       <Shield className="w-8 h-8 text-white" />
                     </div>
@@ -403,18 +403,18 @@ function App() {
 
               {/* Arrow 1 */}
               <div className="hidden md:flex absolute top-24 left-1/3 transform -translate-x-1/2 z-10">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-2">
-                  <ArrowRight className="w-5 h-5 text-white" />
+                <div className="bg-gradient-to-r from-purple-500/60 to-pink-500/60 rounded-full p-2">
+                  <ArrowRight className="w-5 h-5 text-white/80" />
                 </div>
               </div>
 
               {/* Step 2 */}
               <div className="group relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-orange-600 rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-500" />
-                <div className="relative p-8 border border-pink-500/20 rounded-2xl bg-card hover:bg-card/50 transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/20">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600 to-orange-600 rounded-2xl opacity-0 group-hover:opacity-50 blur-sm transition duration-500" />
+                <div className="relative p-8 border border-pink-500/10 rounded-2xl bg-card/30 hover:bg-card/40 transition-all duration-300 hover:shadow-md hover:shadow-pink-500/5">
                   {/* Icon */}
                   <div className="relative mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-orange-500 rounded-2xl opacity-20 blur-xl" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-orange-500 rounded-2xl opacity-10 blur-md" />
                     <div className="relative w-16 h-16 bg-gradient-to-br from-pink-500 to-orange-500 rounded-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
                       <Brain className="w-8 h-8 text-white" />
                     </div>
@@ -447,18 +447,18 @@ function App() {
 
               {/* Arrow 2 */}
               <div className="hidden md:flex absolute top-24 left-2/3 transform -translate-x-1/2 z-10">
-                <div className="bg-gradient-to-r from-pink-500 to-orange-500 rounded-full p-2">
-                  <ArrowRight className="w-5 h-5 text-white" />
+                <div className="bg-gradient-to-r from-pink-500/60 to-orange-500/60 rounded-full p-2">
+                  <ArrowRight className="w-5 h-5 text-white/80" />
                 </div>
               </div>
 
               {/* Step 3 */}
               <div className="group relative">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-600 to-yellow-600 rounded-2xl opacity-0 group-hover:opacity-100 blur transition duration-500" />
-                <div className="relative p-8 border border-orange-500/20 rounded-2xl bg-card hover:bg-card/50 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/20">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-600 to-yellow-600 rounded-2xl opacity-0 group-hover:opacity-50 blur-sm transition duration-500" />
+                <div className="relative p-8 border border-orange-500/10 rounded-2xl bg-card/30 hover:bg-card/40 transition-all duration-300 hover:shadow-md hover:shadow-orange-500/5">
                   {/* Icon */}
                   <div className="relative mb-6">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl opacity-20 blur-xl" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-2xl opacity-10 blur-md" />
                     <div className="relative w-16 h-16 bg-gradient-to-br from-orange-500 to-yellow-500 rounded-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
                       <Banknote className="w-8 h-8 text-white" />
                     </div>
