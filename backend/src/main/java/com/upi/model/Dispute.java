@@ -40,7 +40,10 @@ public class Dispute {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.status = DisputeStatus.PENDING;
+        // Only set PENDING if status wasn't explicitly set
+        if (this.status == null) {
+            this.status = DisputeStatus.PENDING;
+        }
     }
 
     @PreUpdate

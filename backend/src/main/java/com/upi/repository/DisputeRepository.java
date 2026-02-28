@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface DisputeRepository extends JpaRepository<Dispute, Long> {
     Optional<Dispute> findByTransactionId(String transactionId);
     List<Dispute> findByPhone(String phone);
+    void deleteByPhone(String phone);
 }

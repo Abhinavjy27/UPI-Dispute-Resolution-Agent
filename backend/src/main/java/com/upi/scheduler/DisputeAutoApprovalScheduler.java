@@ -16,18 +16,18 @@ public class DisputeAutoApprovalScheduler {
     private static final Logger logger = Logger.getLogger(DisputeAutoApprovalScheduler.class.getName());
     private final DisputeRepository disputeRepository;
 
-    // Auto-approve after 2 hours for demo (adjust as needed)
-    private static final long AUTO_APPROVE_HOURS = 2;
+    // Auto-approve after 5 seconds for testing
+    private static final long AUTO_APPROVE_SECONDS = 5;
 
     public DisputeAutoApprovalScheduler(DisputeRepository disputeRepository) {
         this.disputeRepository = disputeRepository;
     }
 
     /**
-     * Scheduled task that runs every 5 minutes to check for disputes
+     * Scheduled task that runs every 10 seconds to check for disputes
      * that need auto-approval
      */
-    @Scheduled(fixedDelay = 300000, initialDelay = 60000) // Every 5 minutes, start after 1 minute
+    @Scheduled(fixedDelay = 10000, initialDelay = 10000) // Every 10 seconds, start after 10 seconds
     public void autoApproveDisputes() {
         logger.info("Running auto-approval check for disputes...");
         
@@ -48,9 +48,9 @@ public class DisputeAutoApprovalScheduler {
             LocalDateTime now = LocalDateTime.now();
             
             for (Dispute dispute : manualReviewDisputes) {
-                long hoursElapsed = ChronoUnit.HOURS.between(dispute.getCreatedAt(), now);
+                long secondsElapsed = ChronoUnit.SECONDS.between(dispute.getCreatedAt(), now);
                 
-                if (hoursElapsed >= AUTO_APPROVE_HOURS) {
+                if (secondsElapsed >= AUTO_APPROVE_SECONDS) {
                     // Auto-approve the dispute
                     dispute.setStatus(Dispute.DisputeStatus.VERIFIED_FAILURE);
                     dispute.setNeftReference("NEFT" + UUID.randomUUID().toString().substring(0, 12).toUpperCase());

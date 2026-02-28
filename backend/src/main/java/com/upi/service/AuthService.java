@@ -2,6 +2,7 @@ package com.upi.service;
 
 import com.upi.dto.LoginRequest;
 import com.upi.dto.LoginResponse;
+import com.upi.dto.PhoneLoginRequest;
 import com.upi.dto.RegisterRequest;
 import com.upi.dto.UserResponse;
 import com.upi.model.User;
@@ -10,6 +11,8 @@ import com.upi.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -56,6 +59,53 @@ public class AuthService {
             throw new Exception("Account is disabled");
         }
 
+        String token = jwtTokenProvider.generateToken(user.getUsername(), user.getId());
+        return new LoginResponse(token, user.getUsername(), user.getEmail(), user.getFullName(), user.getId(), user.getIsVerified(), user.getCreatedAt());
+    }
+
+    public LoginResponse phoneLogin(PhoneLoginRequest request) throws Exception {
+        String phone = request.getPhone();
+        String password = request.getPassword();
+        
+        // Check if user with this phone exists
+        Optional<User> existingUser = userRepository.findByPhone(phone);
+        
+        User user;
+        if (existingUser.isPresent()) {
+            // User exists - verify password if provided
+            user = existingUser.get();
+            
+            if (!user.getIsActive()) {
+                throw new Exception("Account is disabled");
+            }
+            
+            // If password is provided, verify it
+            if (password != null && !password.isEmpty()) {
+                if (!passwordEncoder.matches(password, user.getPassword())) {
+                    throw new Exception("Invalid password");
+                }
+            }
+        } else {
+            // User doesn't exist - create new profile
+            user = new User();
+            user.setPhone(phone);
+            user.setUsername("user_" + phone.replaceAll("[^0-9]", "")); // username from phone
+            user.setEmail(phone.replaceAll("[^0-9]", "") + "@upi.temp"); // temp email
+            
+            // Use provided password or auto-generate one
+            if (password != null && !password.isEmpty()) {
+                user.setPassword(passwordEncoder.encode(password));
+            } else {
+                user.setPassword(passwordEncoder.encode("temp_" + System.currentTimeMillis())); // auto-generated password
+            }
+            
+            user.setFullName("User " + phone);
+            user.setIsActive(true);
+            user.setIsVerified(false);
+            
+            user = userRepository.save(user);
+        }
+        
         String token = jwtTokenProvider.generateToken(user.getUsername(), user.getId());
         return new LoginResponse(token, user.getUsername(), user.getEmail(), user.getFullName(), user.getId(), user.getIsVerified(), user.getCreatedAt());
     }

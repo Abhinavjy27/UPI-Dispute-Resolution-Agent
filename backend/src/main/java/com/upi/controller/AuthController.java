@@ -2,6 +2,7 @@ package com.upi.controller;
 
 import com.upi.dto.LoginRequest;
 import com.upi.dto.LoginResponse;
+import com.upi.dto.PhoneLoginRequest;
 import com.upi.dto.RegisterRequest;
 import com.upi.dto.UpdateProfileRequest;
 import com.upi.dto.UserResponse;
@@ -38,6 +39,18 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
             LoginResponse response = authService.login(request);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/phone-login")
+    public ResponseEntity<?> phoneLogin(@Valid @RequestBody PhoneLoginRequest request) {
+        try {
+            LoginResponse response = authService.phoneLogin(request);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();

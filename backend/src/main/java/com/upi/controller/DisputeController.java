@@ -69,6 +69,22 @@ public class DisputeController {
         }
     }
 
+    @DeleteMapping("/disputes/user/{phone}")
+    public ResponseEntity<?> deleteUserDisputes(@PathVariable String phone) {
+        try {
+            logger.info("DELETE /api/disputes/user/" + phone + " - Deleting user disputes");
+            disputeService.deleteUserDisputes(phone);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "All disputes deleted for phone: " + phone);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.severe("Error deleting user disputes: " + e.getMessage());
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
         Map<String, String> response = new HashMap<>();
